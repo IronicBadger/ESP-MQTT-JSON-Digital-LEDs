@@ -43,7 +43,7 @@ This code also supports remote uploading to the ESP8266 using Arduino's OTA libr
 
 
 #### Wiring Diagram
-![alt text](https://github.com/bruhautomation/ESP-MQTT-Digital-LEDs/blob/master/ESP%20MQTT%20Digital%20LEDs%20Wiring%20Diagram.png?raw=true "Wiring Diagram")
+![alt text](https://github.com/IronicBadger/ESP-MQTT-JSON-Digital-LEDs/blob/master/ESP%20MQTT%20Digital%20LEDs%20Wiring%20Diagram.png?raw=true "Wiring Diagram")
 
 
 #### Home Assistant Service Examples
