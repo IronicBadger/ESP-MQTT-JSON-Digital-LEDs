@@ -31,25 +31,25 @@
 
 
 /************ WIFI and MQTT Information (CHANGE THESE FOR YOUR SETUP) ******************/
-const char* ssid = "YourSSID"; //type your WIFI information inside the quotes
-const char* password = "YourWIFIpassword";
-const char* mqtt_server = "your.MQTT.server.ip";
-const char* mqtt_username = "yourMQTTusername";
-const char* mqtt_password = "yourMQTTpassword";
+const char* ssid = "SSID"; //type your WIFI information inside the quotes
+const char* password = "wifiPassword";
+const char* mqtt_server = "hassIP";
+const char* mqtt_username = "homeassistant";
+const char* mqtt_password = "mqttPassword";
 const int mqtt_port = 1883;
 
 
 
 /**************************** FOR OTA **************************************************/
-#define SENSORNAME "porch" //change this to whatever you want to call your device
+#define SENSORNAME "chimneyLED" //change this to whatever you want to call your device
 #define OTApassword "yourOTApassword" //the password you will need to enter to upload remotely via the ArduinoIDE
 int OTAport = 8266;
 
 
 
 /************* MQTT TOPICS (change these topics as you wish)  **************************/
-const char* light_state_topic = "bruh/porch";
-const char* light_set_topic = "bruh/porch/set";
+const char* light_state_topic = "leds/chimney";
+const char* light_set_topic = "leds/chimney/set";
 
 const char* on_cmd = "ON";
 const char* off_cmd = "OFF";
@@ -66,11 +66,12 @@ const int BUFFER_SIZE = JSON_OBJECT_SIZE(10);
 
 
 /*********************************** FastLED Defintions ********************************/
-#define NUM_LEDS    186
+#define NUM_LEDS    150
 #define DATA_PIN    5
 //#define CLOCK_PIN 5
 #define CHIPSET     WS2811
 #define COLOR_ORDER BRG
+#define MILLION 1000000
 
 byte realRed = 0;
 byte realGreen = 0;
@@ -112,7 +113,8 @@ uint8_t thishue = 0;                                          // Starting hue va
 uint8_t deltahue = 10;
 
 //CANDYCANE
-CRGBPalette16 currentPalettestriped; //for Candy Cane
+CRGBPalette16 candyCaneStriped; //for Candy Cane
+CRGBPalette16 candyCaneStripedRedGreen; //for Candy Cane
 CRGBPalette16 gPal; //for fire
 
 //NOISE
@@ -182,6 +184,7 @@ void setup() {
   FastLED.addLeds<CHIPSET, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS);
 
   setupStripedPalette( CRGB::Red, CRGB::Red, CRGB::White, CRGB::White); //for CANDY CANE
+  setupStripedPaletteRedGreen( CRGB::Red, CRGB::Red, CRGB::Green, CRGB::Green); //for CANDY CANE (red and green)
   gPal = HeatColors_p; //for FIRE
 
   setup_wifi();
@@ -525,14 +528,26 @@ void loop() {
     startIndex = startIndex + 1; /* higher = faster motion */
     fill_palette( leds, NUM_LEDS,
                   startIndex, 16, /* higher = narrower stripes */
-                  currentPalettestriped, 255, LINEARBLEND);
+                  candyCaneStriped, 255, LINEARBLEND);
     if (transitionTime == 0 or transitionTime == NULL) {
       transitionTime = 0;
     }
     showleds();
   }
 
-
+  //EFFECT Candy Cane (red green)
+  if (effectString == "christmas") {
+    static uint8_t startIndex = 0;
+    startIndex = startIndex + 1; /* higher = faster motion */
+    fill_palette( leds, NUM_LEDS,
+                  startIndex, 16, /* higher = narrower stripes */
+                  candyCaneStripedRedGreen, 255, LINEARBLEND);
+    if (transitionTime == 0 or transitionTime == NULL) {
+      transitionTime = 0;
+    }
+    showleds();
+  }
+  
   //EFFECT CONFETTI
   if (effectString == "confetti" ) {
     fadeToBlackBy( leds, NUM_LEDS, 25);
@@ -960,13 +975,18 @@ int calculateVal(int step, int val, int i) {
 
 /**************************** START STRIPLED PALETTE *****************************************/
 void setupStripedPalette( CRGB A, CRGB AB, CRGB B, CRGB BA) {
-  currentPalettestriped = CRGBPalette16(
+  candyCaneStriped = CRGBPalette16(
                             A, A, A, A, A, A, A, A, B, B, B, B, B, B, B, B
                             //    A, A, A, A, A, A, A, A, B, B, B, B, B, B, B, B
                           );
 }
 
-
+void setupStripedPaletteRedGreen( CRGB A, CRGB AB, CRGB B, CRGB BA) {
+  candyCaneStripedRedGreen = CRGBPalette16(
+                            A, A, A, A, A, A, A, A, B, B, B, B, B, B, B, B
+                            //    A, A, A, A, A, A, A, A, B, B, B, B, B, B, B, B
+                          );
+}
 
 /********************************** START FADE************************************************/
 void fadeall() {
